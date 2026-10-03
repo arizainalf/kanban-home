@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Kanban</title>
+<link rel="stylesheet" href="tw.css">
+<style>
+  /* kecil, tidak bisa utility Tailwind: state drag dari JS + scrollbar */
+  .col.dragover .cards { background: rgb(39 39 42 / .5); border-radius: .5rem }
+  .cards::-webkit-scrollbar { width: 6px }
+  .cards::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px }
+
+  /* aurora gelap: blob blur besar, opacity rendah, drift lambat (transform = GPU) */
+  .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden }
+  .aurora::before, .aurora::after {
+    content: ''; position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%;
+    filter: blur(80px); will-change: transform; mix-blend-mode: screen;
+  }
+  .aurora::before {
+    background: radial-gradient(closest-side, oklch(70% .15 250 / .16), transparent 70%);
+    top: -20vmax; left: -10vmax;
+    animation: drift1 28s ease-in-out infinite alternate;
+  }
+  .aurora::after {
+    background: radial-gradient(closest-side, oklch(75% .13 170 / .12), transparent 70%);
+    bottom: -25vmax; right: -15vmax;
+    animation: drift2 36s ease-in-out infinite alternate;
+  }
+  @keyframes drift1 { to { transform: translate(18vw, 12vh) rotate(20deg) scale(1.15) } }
+  @keyframes drift2 { to { transform: translate(-14vw, -10vh) rotate(-15deg) scale(1.1) } }
+  @media (prefers-reduced-motion: reduce) { .aurora::before, .aurora::after { animation: none } }
+  body > header, body > #board, body > section { position: relative; z-index: 10 }
+</style>
+</head>
+<body class="h-screen flex flex-col bg-zinc-950 text-zinc-100 antialiased" style="color-scheme: dark">
+<div class="aurora"></div>
+<header class="px-5 pt-4 pb-3 flex justify-between items-baseline">
+  <h1 class="font-semibold tracking-wide text-lg">Kanban</h1>
+  <div class="ml-auto flex items-center gap-3">
+    <span class="text-zinc-500 text-xs">drag antar kolom · tersimpan lokal</span>
+    <button id="toggleArchive" class="text-xs text-zinc-400 hover:text-zinc-100 ring-1 ring-zinc-700 rounded-md px-2 py-1 transition">Arsip</button>
+  </div>
+</header>
+<div id="board" class="flex-1 min-h-0 grid grid-cols-3 gap-3 px-5 pb-5"></div>
+<script src="script.js"></script>
+</body>
+</html>
